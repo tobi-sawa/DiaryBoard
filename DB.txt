@@ -1,0 +1,180 @@
+team 
+CREATE TABLE team (
+    team_id VARCHAR(128) PRIMARY KEY,
+    team_name VARCHAR(128) NOT NULL,
+    team_time DATETIME NOT NULL,
+    country VARCHAR(128),
+    age VARCHAR(128),
+    member_count INT
+);
+
+CREATE TABLE user (
+    user_id VARCHAR(128),
+    team_id VARCHAR(128),
+    password VARCHAR(64) NOT NULL,
+    name VARCHAR(32) NOT NULL,
+    main_language INT NOT NULL,
+    learn_language INT NOT NULL,
+    answer_count INT DEFAULT 0,
+    diary_count INT DEFAULT 0,
+    nickname INT DEFAULT 1,
+    is_admin BOOLEAN DEFAULT FALSE,  -- is_admin を追加（デフォルト値は FALSE）
+    PRIMARY KEY (user_id, team_id),
+    FOREIGN KEY (team_id) REFERENCES team(team_id),
+    FOREIGN KEY (main_language) REFERENCES language(language_id),
+    FOREIGN KEY (learn_language) REFERENCES language(language_id)
+);
+
+language
+create table language(
+language_id int auto_increment primary key,
+language_name varchar(16));
+
+#このデータをテーブル挿入と同時に入れてください
+INSERT INTO language (language_name) VALUES ('日本語'),('英語'),('ポルトガル語'),('スペイン語'),('中国語（簡）'),('中国語（繁）'),('韓国語'),('タガログ語'),
+('ベトナム語'),
+('インドネシア語'),
+('ネパール語');
+
+CREATE TABLE diary (
+    diary_id INT AUTO_INCREMENT NOT NULL,
+    team_id VARCHAR(128) NOT NULL,
+    user_id VARCHAR(128) NOT NULL,
+    title VARCHAR(128) NOT NULL,
+    diary_time DATETIME NOT NULL,
+    main_language INT NOT NULL,
+    content TEXT NOT NULL,
+    thumbs_up INT DEFAULT 0,
+    love INT DEFAULT 0,
+    laugh INT DEFAULT 0,
+    surprised INT DEFAULT 0,
+    sad INT DEFAULT 0,
+    is_visible BOOLEAN NOT NULL DEFAULT TRUE,
+    PRIMARY KEY (diary_id),
+    FOREIGN KEY (user_id,team_id) REFERENCES user(user_id,team_id),
+    FOREIGN KEY (main_language) REFERENCES language(language_id)
+);
+
+quiz
+create table quiz(
+quiz_id int not null,
+diary_id int not null,
+question text not null,
+correct char(1) not null,
+a text not null,
+b text not null,
+c text not null,
+d text not null,
+PRIMARY KEY(quiz_id,diary_id),
+FOREIGN KEY (diary_id) REFERENCES diary(diary_id)
+);
+
+answer
+create table answer(
+team_id varchar(128),
+user_id varchar(128),
+quiz_id int,
+diary_id int,
+language_id int not null,
+answer_date datetime not null,
+choices char(1) not null,
+judgement int not null,
+PRIMARY KEY(team_id,user_id,quiz_id,diary_id),
+FOREIGN KEY (quiz_id,diary_id) REFERENCES quiz(quiz_id,diary_id),
+FOREIGN KEY (language_id) REFERENCES language(language_id)
+);
+
+multilingual_diary
+CREATE TABLE multilingual_diary (
+    diary_id INT AUTO_INCREMENT,
+    team_id VARCHAR(128) NOT NULL,
+    user_id VARCHAR(128) NOT NULL,
+    language_id INT NOT NULL,
+    title VARCHAR(128) NOT NULL,
+    diary_time DATETIME NOT NULL,
+    content TEXT NOT NULL,
+    is_visible BOOLEAN NOT NULL DEFAULT TRUE,
+    PRIMARY KEY (diary_id, language_id),
+    FOREIGN KEY (user_id, team_id) REFERENCES user(user_id, team_id),
+    FOREIGN KEY (language_id) REFERENCES language(language_id)
+);
+
+
+
+multilingual_quiz
+create table multilingual_quiz(
+quiz_id int,
+diary_id int ,
+language_id int,
+question text not null,
+correct char(1) not null,
+a text not null,
+b text not null,
+c text not null,
+d text not null,
+PRIMARY KEY(quiz_id,diary_id,language_id),
+FOREIGN KEY (language_id) REFERENCES language(language_id),
+FOREIGN KEY (diary_id) REFERENCES diary(diary_id)
+);
+
+
+
+CREATE TABLE answer_set(
+    set_id INT AUTO_INCREMENT,  -- AUTO_INCREMENTはNOT NULLを自動的に満たすので省略
+    team_id VARCHAR(128) NOT NULL,
+    user_id VARCHAR(128) NOT NULL,
+    diary_id INT NOT NULL,
+    answer_time DATETIME NOT NULL,
+    correct_set INT NOT NULL,
+    PRIMARY KEY (set_id),  -- set_id を主キーとして設定
+    FOREIGN KEY (user_id, team_id) REFERENCES user(user_id, team_id),  -- user と team の組み合わせを参照
+    FOREIGN KEY (diary_id) REFERENCES diary(diary_id)  -- diary_id を参照
+);
+
+CREATE TABLE cash_quiz (
+    cash_quiz_id INT NOT NULL,
+    diary_id INT NOT NULL,
+    user_id VARCHAR(128) NOT NULL,
+    team_id VARCHAR(128) NOT NULL,
+    question TEXT NOT NULL,
+    correct CHAR(1) NOT NULL,
+    a TEXT NOT NULL,
+    b TEXT NOT NULL,
+    c TEXT NOT NULL,
+    d TEXT NOT NULL,
+    PRIMARY KEY (cash_quiz_id, diary_id),  -- cash_quiz_id と diary_id の組み合わせを主キーに
+    FOREIGN KEY (user_id,team_id) REFERENCES user(user_id,team_id)                         -- user_id にインデックスを作成
+);
+
+CREATE TABLE title (
+    title_id INT NOT NULL,
+    language_id INT NOT NULL,
+    title_name VARCHAR(128) NOT NULL,
+    PRIMARY KEY (title_id, language_id),
+    FOREIGN KEY (language_id) REFERENCES language(language_id)
+);
+
+#このデータをテーブル挿入と同時に入れてください
+INSERT INTO title (title_id, language_id, title_name) 
+VALUES
+(1, 1, 'かけだしのクイズ好き'), (1, 2, 'Novice Quiz Enthusiast'), (1, 3, 'Entusiasta de Quiz Iniciante'), (1, 4, 'Entusiasta de Cuestionarios Principiante'), (1, 5, '初学者的测验爱好者'), (1, 6, '初學者的測驗愛好者'), (1, 7, '초보 퀴즈 애호가'), (1, 8, 'Baguhan na Mahilig sa Pagsusulit'), (1, 9, 'Người đam mê câu đố mới bắt đầu'), (1, 10, 'Penggemar Kuis Pemula'), (1, 11, 'सुरुवाती क्विज प्रेमी'),
+
+(2, 1, 'クイズビギナー'), (2, 2, 'Quiz Beginner'), (2, 3, 'Iniciante em Quiz'), (2, 4, 'Principiante en Cuestionarios'), (2, 5, '测验初学者'), (2, 6, '測驗初學者'), (2, 7, '퀴즈 초보자'), (2, 8, 'Baguhan sa Pagsusulit'), (2, 9, 'Người mới bắt đầu câu đố'), (2, 10, 'Pemula Kuis'), (2, 11, 'क्विज प्रारम्भकर्ता'),
+
+(3, 1, '知識コレクター'), (3, 2, 'Knowledge Collector'), (3, 3, 'Coletor de Conhecimento'), (3, 4, 'Coleccionista de Conocimientos'), (3, 5, '知识收集者'), (3, 6, '知識收集者'), (3, 7, '지식 수집가'), (3, 8, 'Kolektor ng Kaalaman'), (3, 9, 'Nhà sưu tập kiến thức'), (3, 10, 'Pengumpul Pengetahuan'), (3, 11, 'ज्ञान सङ्कलक'),
+
+(4, 1, 'クイズチャレンジャー'), (4, 2, 'Quiz Challenger'), (4, 3, 'Desafiante de Quiz'), (4, 4, 'Desafiante de Cuestionarios'), (4, 5, '测验挑战者'), (4, 6, '測驗挑戰者'), (4, 7, '퀴즈 도전자'), (4, 8, 'Tagapaghamon sa Pagsusulit'), (4, 9, 'Người thách thức câu đố'), (4, 10, 'Penantang Kuis'), (4, 11, 'क्विज चुनौती दिनेको'),
+
+(5, 1, '文化のエキスパート'), (5, 2, 'Culture Expert'), (5, 3, 'Especialista em Cultura'), (5, 4, 'Experto en Cultura'), (5, 5, '文化专家'), (5, 6, '文化專家'), (5, 7, '문화 전문가'), (5, 8, 'Eksperto sa Kultura'), (5, 9, 'Chuyên gia văn hóa'), (5, 10, 'Pakar Budaya'), (5, 11, 'संस्कृतिको विशेषज्ञ'),
+
+(6, 1, 'クイズマスター'), (6, 2, 'Quiz Master'), (6, 3, 'Mestre do Quiz'), (6, 4, 'Maestro de Cuestionarios'), (6, 5, '测验大师'), (6, 6, '測驗大師'), (6, 7, '퀴즈 마스터'), (6, 8, 'Master ng Pagsusulit'), (6, 9, 'Bậc thầy câu đố'), (6, 10, 'Master Kuis'), (6, 11, 'क्विज गुरु'),
+
+(7, 1, 'スーパー頭脳'), (7, 2, 'Super Brain'), (7, 3, 'Super Cérebro'), (7, 4, 'Súper Cerebro'), (7, 5, '超级大脑'), (7, 6, '超級大腦'), (7, 7, '슈퍼 두뇌'), (7, 8, 'Napakatalinong Utak'), (7, 9, 'Bộ não siêu cấp'), (7, 10, 'Otak Super'), (7, 11, 'सुपर मस्तिष्क'),
+
+(8, 1, '知識ヒーロー'), (8, 2, 'Knowledge Hero'), (8, 3, 'Herói do Conhecimento'), (8, 4, 'Héroe del Conocimiento'), (8, 5, '知识英雄'), (8, 6, '知識英雄'), (8, 7, '지식 영웅'), (8, 8, 'Bayani ng Kaalaman'), (8, 9, 'Anh hùng tri thức'), (8, 10, 'Pahlawan Pengetahuan'), (8, 11, 'ज्ञान नायक'),
+
+(9, 1, 'クイズのエリート'), (9, 2, 'Quiz Elite'), (9, 3, 'Elite do Quiz'), (9, 4, 'Élite del Cuestionario'), (9, 5, '测验精英'), (9, 6, '測驗精英'), (9, 7, '퀴즈 엘리트'), (9, 8, 'Elit ng Pagsusulit'), (9, 9, 'Tinh hoa câu đố'), (9, 10, 'Elit Kuis'), (9, 11, 'क्विज अभिजात वर्ग'),
+
+(10, 1, 'クイズの天才'), (10, 2, 'Quiz Genius'), (10, 3, 'Gênio do Quiz'), (10, 4, 'Genio de Cuestionarios'), (10, 5, '测验天才'), (10, 6, '測驗天才'), (10, 7, '퀴즈 천재'), (10, 8, 'Henyo ng Pagsusulit'), (10, 9, 'Thiên tài câu đố'), (10, 10, 'Jenius Kuis'), (10, 11, 'क्विज प्रतिभा'),
+
+(11, 1, '世界の神'), (11, 2, 'God of the World'), (11, 3, 'Deus do Mundo'), (11, 4, 'Dios del Mundo'), (11, 5, '世界之神'), (11, 6, '世界之神'), (11, 7, '세계의 신'), (11, 8, 'Diyos ng Mundo'), (11, 9, 'Thần thế giới'), (11, 10, 'Dewa Dunia'), (11, 11, 'संसारको देवता');
